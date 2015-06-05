@@ -10,9 +10,9 @@ import flixel.tile.FlxTilemap;
  */
 class Player extends FlxSprite
 {
-	private var level:FlxTilemap;
+	private var _level:FlxTilemap;
 	
-	public function new(X:Int = 0, Y:Int = 0, ?Level:FlxTilemap) 
+	public function new(X:Int = 0, Y:Int = 0, ?level:FlxTilemap) 
 	{
 		super(X,Y);
 		
@@ -24,7 +24,7 @@ class Player extends FlxSprite
 		
 		animation.play("walkDown");
 		
-		level = Level;
+		_level = level;
 	}
 	
 	override public function update():Void

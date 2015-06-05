@@ -21,14 +21,14 @@ import openfl.Assets;
  */
 class PlayState extends FlxState
 {
-	private var map:FlxOgmoLoader;
-	private var level:FlxTilemap;
-	private var collisionTiles:FlxTilemap;
-	private var player:Player;	
-	private var coinGroup:FlxTypedGroup<Coin>;
-	private var playerMovement:Bool = false;
-	private var path:FlxPath;
-	private var collideLevel:FlxTilemap;
+	private var _map:FlxOgmoLoader;
+	private var _level:FlxTilemap;
+	private var _collisionTiles:FlxTilemap;
+	private var _player:Player;	
+	private var _coinGroup:FlxTypedGroup<Coin>;
+	private var _playerMovement:Bool = false;
+	private var _path:FlxPath;
+	private var _collideLevel:FlxTilemap;
 	inline static private var TILE_HEIGHT = 16;
 	inline static private var TILE_WIDTH = 16;
 
@@ -36,7 +36,7 @@ class PlayState extends FlxState
 		
 		super.create();
 		
-		map = new FlxOgmoLoader(AssetPaths.level1__oel);
+		_map = new FlxOgmoLoader(AssetPaths.level1__oel);
 		
 		/*
 		level = map.loadTilemap(AssetPaths.tiles__png, TILE_WIDTH, TILE_HEIGHT, "walls");
@@ -44,22 +44,22 @@ class PlayState extends FlxState
 		level.setTileProperties(2, FlxObject.ANY);
 		*/
 		
-		collideLevel = new FlxTilemap();
-		collideLevel.loadMap(Assets.getText("assets/data/testmap.txt"), AssetPaths.tiles__png, TILE_WIDTH, TILE_HEIGHT);
-		collideLevel.setTileProperties(1, FlxObject.NONE);
-		collideLevel.setTileProperties(2, FlxObject.ANY);
+		_collideLevel = new FlxTilemap();
+		_collideLevel.loadMap(Assets.getText("assets/data/testmap.txt"), AssetPaths.tiles__png, TILE_WIDTH, TILE_HEIGHT);
+		_collideLevel.setTileProperties(1, FlxObject.NONE);
+		_collideLevel.setTileProperties(2, FlxObject.ANY);
 		
-		player = new Player(0, 0, level);
-		coinGroup = new FlxTypedGroup<Coin>();
+		_player = new Player(0, 0, _level);
+		_coinGroup = new FlxTypedGroup<Coin>();
 		
-		path = new FlxPath();
+		_path = new FlxPath();
 		
-		map.loadEntities(placeEntities, "entities");
+		_map.loadEntities(placeEntities, "entities");
 		
 		//add(level);
-		add(collideLevel);
+		add(_collideLevel);
 		//add(coinGroup);
-		add(player);		
+		add(_player);		
 	}
 
 	override public function update():Void {
@@ -67,7 +67,7 @@ class PlayState extends FlxState
 		if (FlxG.mouse.justPressed) 
 			movePlayer(FlxPoint.get(FlxG.mouse.screenX, FlxG.mouse.screenY));
 		
-		if (playerMovement == true && path.finished)
+		if (_playerMovement == true && _path.finished)
 			stopMovement();
 		
 		super.update();		
@@ -79,31 +79,52 @@ class PlayState extends FlxState
 		
 		if (entityName == "player")
 		{
-			player.x = x;
-			player.y = y;
+			_player.x = x;
+			_player.y = y;
 		}
 		else if (entityName == "coin")
 		{
-			coinGroup.add(new Coin(x, y));
+			_coinGroup.add(new Coin(x, y));
 		}
 	}
 	
 	private function movePlayer(goal:FlxPoint):Void {
 		
-		var goalMidpoint:FlxPoint = FlxPoint.get(Std.int(goal.x / TILE_WIDTH) * TILE_WIDTH + TILE_WIDTH / 2, Std.int(goal.y / TILE_HEIGHT) * TILE_HEIGHT + TILE_HEIGHT / 2);
+		var goalMidpoint:FlxPoint = coordinatePointToTileMidpoint(goal);
 		
-		var pathPoints:Array<FlxPoint> = collideLevel.findPath(player.getMidpoint(), goalMidpoint);
+		var pathPoints:Array<FlxPoint> = _collideLevel.findPath(_player.getMidpoint(), goalMidpoint);
 			
 		if (pathPoints != null) 
 		{
-			path.start(player, pathPoints);
-			playerMovement = true;
+			_path.start(_player, pathPoints);
+			_playerMovement = true;
 		}		
 	}
 	
 	private function stopMovement():Void {
-		playerMovement = false;
-		path.cancel();
-		player.velocity.x = player.velocity.y = 0;
+		_playerMovement = false;
+		_path.cancel();
+		_player.velocity.x = _player.velocity.y = 0;
 	}
+	
+	
+	//	Uses x and y to calculate the tile row and column as a FlxPoint.
+	private function coordinateXYToTile(X:Float, Y:Float):FlxPoint { return (FlxPoint.get(Std.int(X / TILE_WIDTH), Std.int(Y / TILE_HEIGHT))); }
+	
+	//	Uses a FlxPoint to calculate the tile row and column as a FlxPoint.
+	private function coordinatePointToTile(c:FlxPoint):FlxPoint { return (FlxPoint.get(Std.int(c.x / TILE_WIDTH), Std.int(c.y / TILE_HEIGHT))); }
+	
+	//	Uses x and y to calculate the tile zero position as a FlxPoint.
+	private function coordinateXYToTilePoint(X:Float, Y:Float):FlxPoint { return (FlxPoint.get(Std.int(X / TILE_WIDTH) * TILE_WIDTH, Std.int(Y / TILE_HEIGHT) * TILE_HEIGHT)); }
+	
+	//	Uses a FlxPoint to calculate the tile zero position as a FlxPoint.
+	private function coordinatePointToTilePoint(c:FlxPoint):FlxPoint { return (FlxPoint.get(Std.int(c.x / TILE_WIDTH) * TILE_WIDTH, Std.int(c.y / TILE_HEIGHT) * TILE_HEIGHT));	}
+	
+	//	Uses x and y to calculate the tile midpoint as a FlxPoint.
+	private function coordinateXYToTileMidpoint(X:Float, Y:Float):FlxPoint { return (FlxPoint.get(Std.int(X / TILE_WIDTH) * TILE_WIDTH + TILE_WIDTH / 2, Std.int(Y / TILE_HEIGHT) * TILE_HEIGHT + TILE_HEIGHT / 2));	}
+	
+	//	Uses a FlxPoint to calculate the tile midpoint as a FlxPoint.
+	private function coordinatePointToTileMidpoint(c:FlxPoint):FlxPoint { return (FlxPoint.get(Std.int(c.x / TILE_WIDTH) * TILE_WIDTH + TILE_WIDTH / 2, Std.int(c.y / TILE_HEIGHT) * TILE_HEIGHT + TILE_HEIGHT / 2));	 }
+	
+	
 }
