@@ -8,13 +8,13 @@ import flixel.addons.editors.ogmo.FlxOgmoLoader;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
-import flixel.group.FlxTypedGroup;
+import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.text.FlxText;
 import flixel.tile.FlxTilemap;
-import flixel.util.FlxMath;
+import flixel.math.FlxMath;
+import flixel.util.FlxPath;
 import flixel.FlxObject;
-import flixel.util.FlxPoint;
-import openfl.Assets;
+import flixel.math.FlxPoint;
 
 /**
  * A FlxState which can be used for the actual gameplay.
@@ -27,7 +27,6 @@ class PlayState extends FlxState
 	private var _player:Player;	
 	private var _coinGroup:FlxTypedGroup<Coin>;
 	private var _playerMovement:Bool = false;
-	private var _path:FlxPath;
 	private var _collideLevel:FlxTilemap;
 	inline static private var TILE_HEIGHT = 16;
 	inline static private var TILE_WIDTH = 16;
@@ -45,14 +44,13 @@ class PlayState extends FlxState
 		*/
 		
 		_collideLevel = new FlxTilemap();
-		_collideLevel.loadMap(Assets.getText("assets/data/testmap.txt"), AssetPaths.tiles__png, TILE_WIDTH, TILE_HEIGHT);
+		_collideLevel.loadMapFromCSV("assets/data/testmap.txt", AssetPaths.tiles__png, TILE_WIDTH, TILE_HEIGHT);
 		_collideLevel.setTileProperties(1, FlxObject.NONE);
 		_collideLevel.setTileProperties(2, FlxObject.ANY);
 		
 		_player = new Player(0, 0, _level);
+		_player.path = new FlxPath();
 		_coinGroup = new FlxTypedGroup<Coin>();
-		
-		_path = new FlxPath();
 		
 		_map.loadEntities(placeEntities, "entities");
 		
@@ -62,15 +60,14 @@ class PlayState extends FlxState
 		add(_player);		
 	}
 
-	override public function update():Void {
-		
+	override public function update(elapsed:Float):Void
+	{
+		super.update(elapsed);
 		if (FlxG.mouse.justPressed) 
 			movePlayer(FlxPoint.get(FlxG.mouse.screenX, FlxG.mouse.screenY));
 		
-		if (_playerMovement == true && _path.finished)
+		if (_playerMovement == true && _player.path.finished)
 			stopMovement();
-		
-		super.update();		
 	}
 	
 	private function placeEntities(entityName:String, entityData:Xml):Void {
@@ -96,14 +93,14 @@ class PlayState extends FlxState
 			
 		if (pathPoints != null) 
 		{
-			_path.start(_player, pathPoints);
+			_player.path.start(pathPoints);
 			_playerMovement = true;
 		}		
 	}
 	
 	private function stopMovement():Void {
 		_playerMovement = false;
-		_path.cancel();
+		_player.path.cancel();
 		_player.velocity.x = _player.velocity.y = 0;
 	}
 	

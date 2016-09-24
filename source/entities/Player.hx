@@ -27,8 +27,9 @@ class Player extends FlxSprite
 		_level = level;
 	}
 	
-	override public function update():Void
+	override public function update(elapsed:Float):Void
 	{
+		super.update(elapsed);
 		/*	
 		if (FlxG.keys.pressed.LEFT || FlxG.keys.pressed.A)
 		{
@@ -57,10 +58,6 @@ class Player extends FlxSprite
 		else
 			velocity.y = 0;		
 		*/
-			
-		
-		
-		super.update();
 	}
 	
 }
