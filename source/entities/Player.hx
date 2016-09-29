@@ -37,29 +37,35 @@ class Player extends FlxSprite
 
 		switch (Reg.keyCodesCur)
 		{
-			case 2:
-				
+			case 2:				
 				if (Reg.keyCodesCur != Reg.keyCodesPre)
 					lookForPathUp();
 					
 				animation.play("walkUp");
 				
 				
-			case 3:
-				velocity.x = Reg.playerSpeed;
+			case 3:				
+				if (Reg.keyCodesCur != Reg.keyCodesPre)
+					lookForPathRight();					
+				
 				animation.play("walkRight");
-			case 5:
-				velocity.y = Reg.playerSpeed;
+				
+			case 5:				
+				if (Reg.keyCodesCur != Reg.keyCodesPre)
+					lookForPathDown();
+					
 				animation.play("walkDown");
-			case 7:
-				velocity.x = -Reg.playerSpeed;
+				
+			case 7:				
+				if (Reg.keyCodesCur != Reg.keyCodesPre)
+					lookForPathLeft();
+					
 				animation.play("walkLeft");
+				
 			default:
 				animation.stop();
 				stopMovement();			
 		}
-
-		Reg.keyCodesPre = Reg.keyCodesCur;
 	}
 
 	private function moveAlongPath(goal:FlxPoint):Void {
@@ -81,8 +87,8 @@ class Player extends FlxSprite
 		velocity.x = velocity.y = 0;
 	}
 
-	private function checkInput():Void {
-		
+	private function checkInput():Void {		
+		Reg.keyCodesPre = Reg.keyCodesCur;
 		Reg.keyCodesCur = 1;
 		Reg.keyCodesCur *= ((FlxG.keys.pressed.UP || FlxG.keys.pressed.W) ? Reg.CODEVALUE_UP : 1)
 			* ((FlxG.keys.pressed.RIGHT || FlxG.keys.pressed.D) ? Reg.CODEVALUE_RIGHT : 1)
@@ -100,24 +106,9 @@ class Player extends FlxSprite
 		if (x + origin.x == currentTileMidpoint.x)
 		{
 			endTile = findPath(x + width / 2, y + height / 2, Reg.CODEVALUE_UP);
-			/*
-			var upTile:FlxPoint;
-			var i:Int = 1;
-			var upTileType:Int;
-			
-			do
-			{
-				upTile = Reg.coordinateXYToTileMidpoint(x + width / 2, y + height / 2 - Reg.TILE_HEIGHT * i);
-				upTileType = Reg.collideLevel.getTileByIndex(Reg.collideLevel.getTileIndexByCoords(upTile));
-				i++;
-			}
-			while (upTileType != 2 && upTileType != null);
-			
-			upTile.y += Reg.TILE_HEIGHT;
-			*/
 			
 			moveAlongPath(endTile);
-			trace("EQUALS || " + endTile);
+			//	trace("EQUALS || " + endTile);
 		}
 		else if (x + origin.x > currentTileMidpoint.x)
 		{
@@ -125,45 +116,27 @@ class Player extends FlxSprite
 			var upTileType:Int = Reg.collideLevel.getTileByIndex(Reg.collideLevel.getTileIndexByCoords(endTile));
 			
 			if (upTileType == 2)
-				endTile = findPath(x + width / 2 + Reg.TILE_WIDTH, y + height / 2, Reg.CODEVALUE_UP);
-			else
-				endTile = findPath(x + width / 2, y + height / 2, Reg.CODEVALUE_UP);
-			
-			/*
-			var upTile:FlxPoint;
-			var i:Int = 1;
-			var upTileType:Int;
-			
-			upTile = Reg.coordinateXYToTileMidpoint(x + width / 2, y + height / 2 - Reg.TILE_HEIGHT);
-			upTileType = Reg.collideLevel.getTileByIndex(Reg.collideLevel.getTileIndexByCoords(upTile));
-			
-			if (upTileType == 2)
-			{			
-				do
+			{				
+				endTile = Reg.coordinateXYToTileMidpoint(x + width / 2 + Reg.TILE_WIDTH, y + height / 2 - Reg.TILE_HEIGHT);
+				var diagTileType:Int = Reg.collideLevel.getTileByIndex(Reg.collideLevel.getTileIndexByCoords(endTile));
+				
+				trace(diagTileType);
+				
+				if (diagTileType == 2)
+					stopMovement();
+				else
 				{
-					upTile = Reg.coordinateXYToTileMidpoint(x + width / 2 + Reg.TILE_WIDTH, y + height / 2 - Reg.TILE_HEIGHT * i);
-					upTileType = Reg.collideLevel.getTileByIndex(Reg.collideLevel.getTileIndexByCoords(upTile));
-					i++;
+					endTile = findPath(x + width / 2 + Reg.TILE_WIDTH, y + height / 2, Reg.CODEVALUE_UP);					
+					moveAlongPath(endTile);
 				}
-				while (upTileType != 2 && upTileType != null);
 			}
 			else
-			{
-				do
-				{
-					upTile = Reg.coordinateXYToTileMidpoint(x + width / 2, y + height / 2 - Reg.TILE_HEIGHT * i);
-					upTileType = Reg.collideLevel.getTileByIndex(Reg.collideLevel.getTileIndexByCoords(upTile));
-					i++;
-				}
-				while (upTileType != 2 && upTileType != null);
+			{				
+				endTile = findPath(x + width / 2, y + height / 2, Reg.CODEVALUE_UP);		
+				moveAlongPath(endTile);
 			}
 			
-			upTile.y += Reg.TILE_HEIGHT;
-			*/
-			
-			moveAlongPath(endTile);
-			
-			trace("MAJOR || " + endTile);
+			//	trace("MAJOR || " + endTile);
 		}
 		else
 		{
@@ -171,33 +144,240 @@ class Player extends FlxSprite
 			var upTileType:Int = Reg.collideLevel.getTileByIndex(Reg.collideLevel.getTileIndexByCoords(endTile));
 			
 			if (upTileType == 2)
-				endTile = findPath(x + width / 2 - Reg.TILE_WIDTH, y + height / 2, Reg.CODEVALUE_UP);
-			else
-				endTile = findPath(x + width / 2, y + height / 2, Reg.CODEVALUE_UP);
-			/*
-			var upTile:FlxPoint;
-			var i:Int = 1;
-			var upTileType:Int;
-			
-			do
 			{
-				upTile = Reg.coordinateXYToTileMidpoint(x + width / 2 - Reg.TILE_WIDTH, y + height / 2 - Reg.TILE_HEIGHT * i);
-				upTileType = Reg.collideLevel.getTileByIndex(Reg.collideLevel.getTileIndexByCoords(upTile));
-				i++;
+				endTile = Reg.coordinateXYToTileMidpoint(x + width / 2 - Reg.TILE_WIDTH, y + height / 2 - Reg.TILE_HEIGHT);				
+				var diagTileType:Int = Reg.collideLevel.getTileByIndex(Reg.collideLevel.getTileIndexByCoords(endTile));
+				
+				if (diagTileType == 2)
+					stopMovement();
+				else
+				{
+					endTile = findPath(x + width / 2 - Reg.TILE_WIDTH, y + height / 2, Reg.CODEVALUE_UP);
+					moveAlongPath(endTile);
+				}
 			}
-			while (upTileType != 2 && upTileType != null);
+			else
+			{				
+				endTile = findPath(x + width / 2, y + height / 2, Reg.CODEVALUE_UP);		
+				moveAlongPath(endTile);
+			}
 			
-			upTile.y += Reg.TILE_HEIGHT;
-			*/
+			//	trace("MINOR || " + endTile);
+		}
+		
+	}
+	
+	private function lookForPathRight():Void {
+		
+		var currentTileMidpoint:FlxPoint = Reg.coordinatePointToTileMidpoint(getMidpoint());
+		var endTile:FlxPoint;
+		path = new FlxPath();
+		
+		if (y + origin.y == currentTileMidpoint.y)
+		{
+			endTile = findPath(x + width / 2, y + height / 2, Reg.CODEVALUE_RIGHT);
 			
-			moveAlongPath(endTile);			
+			moveAlongPath(endTile);
+			//	trace("EQUALS || " + endTile);
+		}
+		else if (y + origin.y > currentTileMidpoint.y)
+		{
+			endTile = Reg.coordinateXYToTileMidpoint(x + width / 2 + Reg.TILE_WIDTH, y + height / 2);
+			var rightTileType:Int = Reg.collideLevel.getTileByIndex(Reg.collideLevel.getTileIndexByCoords(endTile));
+			
+			if (rightTileType == 2)
+			{				
+				endTile = Reg.coordinateXYToTileMidpoint(x + width / 2 + Reg.TILE_WIDTH, y + height / 2 + Reg.TILE_HEIGHT);
+				var diagTileType:Int = Reg.collideLevel.getTileByIndex(Reg.collideLevel.getTileIndexByCoords(endTile));
+				
+				trace(diagTileType);
+				
+				if (diagTileType == 2)
+					stopMovement();
+				else
+				{
+					endTile = findPath(x + width / 2, y + height / 2 + Reg.TILE_HEIGHT, Reg.CODEVALUE_RIGHT);					
+					moveAlongPath(endTile);
+				}
+			}
+			else
+			{				
+				endTile = findPath(x + width / 2, y + height / 2, Reg.CODEVALUE_RIGHT);		
+				moveAlongPath(endTile);
+			}
+			
+			//	trace("MAJOR || " + endTile);
+		}
+		else
+		{
+			endTile = Reg.coordinateXYToTileMidpoint(x + width / 2 + Reg.TILE_WIDTH, y + height / 2);
+			var rightTileType:Int = Reg.collideLevel.getTileByIndex(Reg.collideLevel.getTileIndexByCoords(endTile));
+			
+			if (rightTileType == 2)
+			{
+				endTile = Reg.coordinateXYToTileMidpoint(x + width / 2 + Reg.TILE_WIDTH, y + height / 2 - Reg.TILE_HEIGHT);				
+				var diagTileType:Int = Reg.collideLevel.getTileByIndex(Reg.collideLevel.getTileIndexByCoords(endTile));
+				
+				if (diagTileType == 2)
+					stopMovement();
+				else
+				{
+					endTile = findPath(x + width / 2, y + height / 2 - Reg.TILE_HEIGHT, Reg.CODEVALUE_RIGHT);
+					moveAlongPath(endTile);
+				}
+			}
+			else
+			{				
+				endTile = findPath(x + width / 2, y + height / 2, Reg.CODEVALUE_RIGHT);		
+				moveAlongPath(endTile);
+			}
+			
 			trace("MINOR || " + endTile);
 		}
 		
 	}
 	
-	private function findPath(startingX:Float, startingY:Float, direction:Int):FlxPoint
-	{
+	private function lookForPathDown():Void {
+		
+		var currentTileMidpoint:FlxPoint = Reg.coordinatePointToTileMidpoint(getMidpoint());
+		var endTile:FlxPoint;
+		path = new FlxPath();
+		
+		if (x + origin.x == currentTileMidpoint.x)
+		{
+			endTile = findPath(x + width / 2, y + height / 2, Reg.CODEVALUE_DOWN);
+			
+			moveAlongPath(endTile);
+			//	trace("EQUALS || " + endTile);
+		}
+		else if (x + origin.x > currentTileMidpoint.x)
+		{
+			endTile = Reg.coordinateXYToTileMidpoint(x + width / 2, y + height / 2 + Reg.TILE_HEIGHT);
+			var downTileType:Int = Reg.collideLevel.getTileByIndex(Reg.collideLevel.getTileIndexByCoords(endTile));
+			
+			if (downTileType == 2)
+			{				
+				endTile = Reg.coordinateXYToTileMidpoint(x + width / 2 + Reg.TILE_WIDTH, y + height / 2 + Reg.TILE_HEIGHT);
+				var diagTileType:Int = Reg.collideLevel.getTileByIndex(Reg.collideLevel.getTileIndexByCoords(endTile));
+				
+				trace(diagTileType);
+				
+				if (diagTileType == 2)
+					stopMovement();
+				else
+				{
+					endTile = findPath(x + width / 2 + Reg.TILE_WIDTH, y + height / 2, Reg.CODEVALUE_DOWN);					
+					moveAlongPath(endTile);
+				}
+			}
+			else
+			{				
+				endTile = findPath(x + width / 2, y + height / 2, Reg.CODEVALUE_DOWN);		
+				moveAlongPath(endTile);
+			}
+			
+			//	trace("MAJOR || " + endTile);
+		}
+		else
+		{
+			endTile = Reg.coordinateXYToTileMidpoint(x + width / 2, y + height / 2 - Reg.TILE_HEIGHT);
+			var downTileType:Int = Reg.collideLevel.getTileByIndex(Reg.collideLevel.getTileIndexByCoords(endTile));
+			
+			if (downTileType == 2)
+			{
+				endTile = Reg.coordinateXYToTileMidpoint(x + width / 2 - Reg.TILE_WIDTH, y + height / 2 + Reg.TILE_HEIGHT);				
+				var diagTileType:Int = Reg.collideLevel.getTileByIndex(Reg.collideLevel.getTileIndexByCoords(endTile));
+				
+				if (diagTileType == 2)
+					stopMovement();
+				else
+				{
+					endTile = findPath(x + width / 2 - Reg.TILE_WIDTH, y + height / 2, Reg.CODEVALUE_DOWN);
+					moveAlongPath(endTile);
+				}
+			}
+			else
+			{				
+				endTile = findPath(x + width / 2, y + height / 2, Reg.CODEVALUE_UP);		
+				moveAlongPath(endTile);
+			}
+			
+			//	trace("MINOR || " + endTile);
+		}
+		
+	}
+	
+	private function lookForPathLeft():Void {
+		
+		var currentTileMidpoint:FlxPoint = Reg.coordinatePointToTileMidpoint(getMidpoint());
+		var endTile:FlxPoint;
+		path = new FlxPath();
+		
+		if (y + origin.y == currentTileMidpoint.y)
+		{
+			endTile = findPath(x + width / 2, y + height / 2, Reg.CODEVALUE_LEFT);
+			
+			moveAlongPath(endTile);
+			//	trace("EQUALS || " + endTile);
+		}
+		else if (y + origin.y > currentTileMidpoint.y)
+		{
+			endTile = Reg.coordinateXYToTileMidpoint(x + width / 2 - Reg.TILE_WIDTH, y + height / 2);
+			var leftTileType:Int = Reg.collideLevel.getTileByIndex(Reg.collideLevel.getTileIndexByCoords(endTile));
+			
+			if (leftTileType == 2)
+			{				
+				endTile = Reg.coordinateXYToTileMidpoint(x + width / 2 - Reg.TILE_WIDTH, y + height / 2 + Reg.TILE_HEIGHT);
+				var diagTileType:Int = Reg.collideLevel.getTileByIndex(Reg.collideLevel.getTileIndexByCoords(endTile));
+				
+				trace(diagTileType);
+				
+				if (diagTileType == 2)
+					stopMovement();
+				else
+				{
+					endTile = findPath(x + width / 2, y + height / 2 + Reg.TILE_HEIGHT, Reg.CODEVALUE_LEFT);					
+					moveAlongPath(endTile);
+				}
+			}
+			else
+			{				
+				endTile = findPath(x + width / 2, y + height / 2, Reg.CODEVALUE_LEFT);		
+				moveAlongPath(endTile);
+			}
+			
+			//	trace("MAJOR || " + endTile);
+		}
+		else
+		{
+			endTile = Reg.coordinateXYToTileMidpoint(x + width / 2 - Reg.TILE_WIDTH, y + height / 2);
+			var leftTileType:Int = Reg.collideLevel.getTileByIndex(Reg.collideLevel.getTileIndexByCoords(endTile));
+			
+			if (leftTileType == 2)
+			{
+				endTile = Reg.coordinateXYToTileMidpoint(x + width / 2 - Reg.TILE_WIDTH, y + height / 2 - Reg.TILE_HEIGHT);				
+				var diagTileType:Int = Reg.collideLevel.getTileByIndex(Reg.collideLevel.getTileIndexByCoords(endTile));
+				
+				if (diagTileType == 2)
+					stopMovement();
+				else
+				{
+					endTile = findPath(x + width / 2, y + height / 2 - Reg.TILE_HEIGHT, Reg.CODEVALUE_LEFT);
+					moveAlongPath(endTile);
+				}
+			}
+			else
+			{				
+				endTile = findPath(x + width / 2, y + height / 2, Reg.CODEVALUE_LEFT);		
+				moveAlongPath(endTile);
+			}
+			
+			//	trace("MINOR || " + endTile);
+		}
+		
+	}
+	
+	private function findPath(startingX:Float, startingY:Float, direction:Int):FlxPoint {
 		var nextTile:FlxPoint = null;
 		var nextTileType:Int;
 		var i:Int = 1;
@@ -214,6 +394,39 @@ class Player extends FlxSprite
 				while (nextTileType != 2 && nextTileType != null);		
 				
 				nextTile.y += Reg.TILE_HEIGHT;
+			
+			case Reg.CODEVALUE_RIGHT:
+				do
+				{
+					nextTile = Reg.coordinateXYToTileMidpoint(startingX + Reg.TILE_WIDTH * i, startingY);
+					nextTileType = Reg.collideLevel.getTileByIndex(Reg.collideLevel.getTileIndexByCoords(nextTile));
+					i++;
+				}
+				while (nextTileType != 2 && nextTileType != null);		
+				
+				nextTile.x -= Reg.TILE_WIDTH;
+			
+			case Reg.CODEVALUE_DOWN:
+				do
+				{
+					nextTile = Reg.coordinateXYToTileMidpoint(startingX, startingY + Reg.TILE_HEIGHT * i);
+					nextTileType = Reg.collideLevel.getTileByIndex(Reg.collideLevel.getTileIndexByCoords(nextTile));
+					i++;
+				}
+				while (nextTileType != 2 && nextTileType != null);		
+				
+				nextTile.y -= Reg.TILE_HEIGHT;
+				
+			case Reg.CODEVALUE_LEFT:
+				do
+				{
+					nextTile = Reg.coordinateXYToTileMidpoint(startingX - Reg.TILE_WIDTH * i, startingY);
+					nextTileType = Reg.collideLevel.getTileByIndex(Reg.collideLevel.getTileIndexByCoords(nextTile));
+					i++;
+				}
+				while (nextTileType != 2 && nextTileType != null);		
+				
+				nextTile.x += Reg.TILE_WIDTH;
 		}
 		
 		//FlxG.state.add(new FlxSprite(nextTile.x, nextTile.y, AssetPaths.coin__png));
