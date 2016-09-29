@@ -45,6 +45,10 @@ class PlayState extends FlxState
 		_coinGroup = new FlxTypedGroup<Coin>();
 
 		map.loadEntities(placeEntities, "entities");
+		
+		FlxG.camera.follow(_player);
+		FlxG.camera.setScrollBounds(0, map.width, 0, map.height);
+		
 		add(Reg.collideLevel);
 		//add(coinGroup);
 		add(_player);
