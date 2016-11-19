@@ -1,6 +1,7 @@
 package states;
 
 import entities.Player;
+import entities.PlayerTest;
 import entities.Coin;
 
 import flixel.addons.editors.ogmo.FlxOgmoLoader;
@@ -32,11 +33,12 @@ class PlayState extends FlxState
 		super.create();
 		
 		FlxG.debugger.toggleKeys.push(FlxKey.V);
+		FlxG.mouse.visible = false;
 
 		var map:FlxOgmoLoader = new FlxOgmoLoader(AssetPaths.level1__oel);
 
 		Reg.collideLevel = new FlxTilemap();
-		Reg.collideLevel.loadMapFromCSV("assets/data/testmap.txt", AssetPaths.tiles__png, Reg.TILE_WIDTH, Reg.TILE_HEIGHT);
+		Reg.collideLevel.loadMapFromCSV("assets/data/testmap.txt", AssetPaths.tiles3__png, Reg.TILE_WIDTH, Reg.TILE_HEIGHT);
 		Reg.collideLevel.setTileProperties(1, FlxObject.NONE);
 		Reg.collideLevel.setTileProperties(2, FlxObject.ANY);
 
@@ -56,10 +58,11 @@ class PlayState extends FlxState
 
 	override public function update(elapsed:Float):Void
 	{
+		FlxG.collide(_player, Reg.collideLevel);
 		super.update(elapsed);
 		
-		FlxG.collide(_player, Reg.collideLevel);
-		
+		if (FlxG.keys.justPressed.R)
+			FlxG.resetState();
 		
 		if (FlxG.mouse.justPressed)
 			trace(FlxPoint.get(FlxG.mouse.screenX, FlxG.mouse.screenY));

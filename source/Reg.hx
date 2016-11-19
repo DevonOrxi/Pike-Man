@@ -7,7 +7,7 @@ class Reg
 	static public var playerSpeed:Int = 100;
 	static public var collideLevel:FlxTilemap;
 	static public var keyCodesCur:Int = 1;
-	static public var keyCodesPre:Int = 1;	
+	static public var keyCodesPre:Int = 1;
 	
 	inline static public var TILE_HEIGHT:Int = 16;
 	inline static public var TILE_WIDTH:Int = 16;
